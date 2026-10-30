@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String          @id @default(uuid())
+  phoneNumber        String          @unique
+  passwordHash       String
+  role               String          @default("USER") // "ADMIN" or "USER"
+  accountStatus      String          @default("ACTIVE") // "ACTIVE", "SUSPENDED", "INACTIVE"
+  mustChangePassword Boolean         @default(false)
+  notes              String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  subscriptions      Subscription[]
+  deviceSessions     DeviceSession[]
+  auditLogsActed     AuditLog[]      @relation("ActorLogs")
+  auditLogsTarget    AuditLog[]      @relation("TargetLogs")
+
+  @@index([phoneNumber])
+  @@index([role])
+  @@index([accountStatus])
+}
+
+model Subscription {
+  id               String    @id @default(uuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startAt          DateTime  @default(now())
+  expiresAt        DateTime
+  amount           Int       @default(1500)
+  currency         String    @default("INR")
+  status           String    @default("ACTIVE") // "ACTIVE", "EXPIRED", "PENDING"
+  paymentStatus    String    @default("PAID") // "PAID", "UNPAID", "REFUNDED"
+  createdByAdminId String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model DeviceSession {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId         String    @unique
+  deviceFingerprint String?
+  deviceLabel       String    @default("Unknown Device")
+  ipAddress         String?
+  status            String    @default("ACTIVE") // "ACTIVE", "REVOKED"
+  firstRegisteredAt DateTime  @default(now())
+  lastActiveAt      DateTime  @default(now())
+  revokedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([sessionId])
+}
+
+model Prediction {
+  id               String    @id @default(uuid())
+  issueId          String    @unique
+  periodNumber     String
+  prediction       String    // "BIG" or "SMALL"
+  oppositeNumbers  String    // e.g. "0,3"
+  actualNumber     Int?
+  actualCategory   String?   // "BIG" or "SMALL"
+  evaluationStatus String    @default("PENDING") // "PENDING", "WIN", "LOSS"
+  isJackpot        Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  evaluatedAt      DateTime?
+
+  @@index([issueId])
+  @@index([periodNumber])
+  @@index([evaluationStatus])
+}
+
+model LotteryResult {
+  id          String   @id @default(uuid())
+  issueNumber String   @unique
+  number      Int
+  category    String   // "BIG" or "SMALL"
+  color       String?
+  rawPayload  String?
+  fetchedAt   DateTime @default(now())
+
+  @@index([issueNumber])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  eventType    String
+  actorId      String?
+  actor        User?    @relation("ActorLogs", fields: [actorId], references: [id], onDelete: SetNull)
+  targetUserId String?
+  targetUser   User?    @relation("TargetLogs", fields: [targetUserId], references: [id], onDelete: SetNull)
+  ipAddress    String?
+  userAgent    String?
+  details      String?  // JSON string
+  createdAt    DateTime @default(now())
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([targetUserId])
+}

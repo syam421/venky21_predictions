@@ -1,0 +1,27 @@
+# Node modules
+node_modules/
+*/node_modules/
+
+# Environment and secrets
+.env
+*.env
+backend/.env
+frontend/.env
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# Database files
+*.db
+*.db-journal
+backend/dev.db
+backend/dev.db-journal
+
+# Build outputs
+dist/
+*/dist/
+
+# OS and logs
+*.log
+.DS_Store
+Thumbs.db

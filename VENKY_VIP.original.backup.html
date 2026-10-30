@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROHAN VIP GANDFAAD V15</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <style>
+        :root { 
+            --neon: #00ff41; 
+            --danger: #ff003c; 
+            --gold: #ffea00; 
+            --bg: #050505; 
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: #fff; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            user-select: none; 
+            overflow: hidden; 
+        }
+        
+        /* Fixed Login Screen */
+        #loginPage { 
+            position: fixed; 
+            inset: 0; 
+            background: var(--bg); 
+            z-index: 9999; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            transition: 0.5s; 
+        }
+        
+        .zigzag-name { 
+            font-size: 38px; 
+            font-weight: 900; 
+            letter-spacing: 5px; 
+            color: #fff; 
+            text-transform: uppercase; 
+            text-shadow: 2px 2px var(--danger), -2px -2px var(--neon), 0 0 20px var(--neon); 
+            animation: glitch 1.5s infinite; 
+            margin-bottom: 20px; 
+        }
+        
+        @keyframes glitch { 
+            0% { transform: skew(0deg); } 
+            20% { transform: skew(-3deg); text-shadow: 2px 2px var(--neon), -2px -2px var(--danger); } 
+            40% { transform: skew(3deg); } 
+            100% { transform: skew(0deg); } 
+        }
+        
+        .login-input { 
+            background: rgba(255,255,255,0.05); 
+            border: 2px solid var(--neon); 
+            color: #fff; 
+            padding: 15px; 
+            border-radius: 12px; 
+            width: 80%; 
+            max-width: 320px; 
+            text-align: center; 
+            font-size: 18px; 
+            outline: none; 
+            margin-bottom: 20px; 
+        }
+        
+        .login-btn { 
+            background: var(--neon); 
+            color: #000; 
+            border: none; 
+            padding: 15px 50px; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            font-size: 16px; 
+            cursor: pointer; 
+            box-shadow: 0 0 20px var(--neon); 
+            text-transform: uppercase; 
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Main Hack Content */
+        #mainContent { 
+            height: 100vh; 
+            overflow-y: auto; 
+            padding: 20px; 
+            box-sizing: border-box; 
+        }
+        
+        .glass-box { 
+            max-width: 400px; 
+            margin: 0 auto; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(0,255,65,0.2); 
+            border-radius: 25px; 
+            padding: 25px; 
+            backdrop-filter: blur(15px); 
+            text-align: center; 
+        }
+        
+        .pred-val { 
+            font-size: 60px; 
+            font-weight: 900; 
+            margin: 10px 0; 
+            text-shadow: 0 0 20px var(--neon); 
+            color: #fff; 
+        }
+        
+        .opps-box { 
+            color: var(--gold); 
+            font-size: 14px; 
+            font-weight: bold; 
+            border: 1px dashed var(--gold); 
+            padding: 10px; 
+            margin: 15px 0; 
+            border-radius: 5px; 
+            text-transform: uppercase; 
+        }
+
+        .jackpot { 
+            color: var(--gold); 
+            text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold); 
+            font-weight: bold; 
+        }
+
+        table { 
+            width: 100%; 
+            margin-top: 20px; 
+            border-collapse: collapse; 
+            font-size: 12px; 
+        }
+        
+        th { 
+            color: #888; 
+            border-bottom: 1px solid #222; 
+            padding: 10px; 
+            text-transform: uppercase; 
+        }
+        
+        td { 
+            padding: 12px; 
+            border-bottom: 1px solid #111; 
+            text-align: center; 
+        }
+        
+        .win { color: var(--neon); font-weight: bold; }
+        .loss { color: var(--danger); font-weight: bold; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="loginPage">  
+        <div class="zigzag-name">ROHAN VIP</div>  
+        <input type="text" id="userKey" class="login-input" placeholder="ENTER ACCESS KEY">
+        <button class="login-btn" onclick="checkLogin()">VERIFY DEVICE</button>
+        <br><br>
+        <a href="t.me/brxzzpvp" target="_blank" style="text-decoration: none;">
+            <button class="login-btn">JOIN TG</button>
+        </a>
+        <p id="loginMsg" style="margin-top: 20px; font-size: 14px; color: #888;"></p>
+    </div>
+
+    <div id="mainContent" class="hidden">  
+        <div style="text-align:center; padding-bottom:20px;">  
+            <div class="zigzag-name" style="font-size: 50px;">ROHAN VIP</div>  
+            <div style="color: var(--gold); font-size: 11px; letter-spacing: 3px;">ROHAN VIP LOGIN - ACTIVE</div>  
+        </div>  
+
+        <div class="glass-box">  
+            <div style="color: #888; font-size: 14px;" id="pID">PERIOD: LOADING...</div>  
+            <div class="pred-val" id="pRes">...</div>  
+            <div class="opps-box" id="pOpps">ANALYZING LOGIC...</div>  
+              
+            <table>  
+                <thead>
+                    <tr>
+                        <th>PRD</th>
+                        <th>PRED</th>
+                        <th>NUM</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>  
+                <tbody id="logs"></tbody>  
+            </table>  
+        </div>  
+    </div>
+
+<script>
+    // Fixed Access Key
+    const ACCESS_KEY = "ROHAN732";
+
+    function checkLogin() {
+        const key = document.getElementById('userKey').value.trim();
+        const msg = document.getElementById('loginMsg');
+
+        if (!key) {
+            msg.style.color = "#ff003c";
+            msg.innerText = "ENTER ACCESS KEY!";
+            return;
+        }
+
+        if (key.toUpperCase() === ACCESS_KEY) {
+            msg.style.color = "#00ff41";
+            msg.innerText = "ACCESS GRANTED";
+
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+
+            runLogic();
+        } else {
+            msg.style.color = "#ff003c";
+            msg.innerText = "INVALID ACCESS KEY!";
+       }
+    }
+
+
+    // --- ORIGINAL PREDICTION LOGIC ---
+    function runLogic() {
+        const B_POOL = [5,6,7,8,9],
+              S_POOL = [0,1,2,3,4];
+
+        let currentOpposites = [];
+
+        setInterval(async () => {
+            try {
+                const res = await fetch('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json');
+                const json = await res.json();
+                const latest = json.data.list[0];
+
+                const last5 = json.data.list
+                    .slice(0, 5)
+                    .map(x => parseInt(x.number) >= 5 ? "BIG" : "SMALL");
+
+                const nextPred =
+                    last5.filter(x => x === "BIG").length > 2
+                    ? "BIG"
+                    : "SMALL";
+
+                if (window.lastId !== latest.issueNumber) {
+                    const actualNum = parseInt(latest.number);
+                    const actualSize = actualNum >= 5 ? "BIG" : "SMALL";
+
+                    let lastPred = window.savedPrediction || nextPred;
+                    let lastOpps = window.savedOpps || [];
+
+                    if (window.lastId) {
+                        const isWin =
+                            (lastPred === actualSize) ||
+                            lastOpps.includes(actualNum);
+
+                        const statusText = isWin
+                            ? `GAND FAD 🐯 ${lastOpps.includes(actualNum) ? '<span class="jackpot">MACHODI 💰</span>' : ''}`
+                            : 'CHUD GYE GURU 🖤';
+
+                        const row = `
+                            <tr>
+                                <td>${latest.issueNumber.slice(-3)}</td>
+                                <td>${lastPred}</td>
+                                <td>${actualNum}</td>
+                                <td class="${isWin ? 'win' : 'loss'}">${statusText}</td>
+                            </tr>`;
+
+                        document.getElementById('logs').innerHTML =
+                            row + document.getElementById('logs').innerHTML;
+                    }
+
+                    window.lastId = latest.issueNumber;
+                    window.savedPrediction = nextPred;
+
+                    const pool =
+                        nextPred === "BIG"
+                        ? S_POOL
+                        : B_POOL;
+
+                    currentOpposites = pool
+                        .sort(() => 0.5 - Math.random())
+                        .slice(0, 2);
+
+                    window.savedOpps = currentOpposites;
+                }
+
+                document.getElementById('pID').innerText =
+                    "PERIOD: " +
+                    (BigInt(latest.issueNumber) + 1n).toString();
+
+                document.getElementById('pRes').innerText = nextPred;
+
+                document.getElementById('pOpps').innerText =
+                    "OPPOSITE NUMS: " +
+                    currentOpposites.join(", ");
+
+            } catch (e) {
+                console.log("Fetch Error...", e);
+            }
+        }, 3000);
+    }
+</script>  </body>  
+</html>
