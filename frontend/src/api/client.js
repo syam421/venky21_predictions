@@ -1,4 +1,19 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+function resolveBaseUrl() {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && envUrl.startsWith('http')) {
+    return envUrl;
+  }
+  // When running in browser on a port other than 5000 or 5173 (e.g. Live Server 5500)
+  if (typeof window !== 'undefined') {
+    const port = window.location.port;
+    if (port && port !== '5000' && port !== '5173') {
+      return 'http://localhost:5000/api';
+    }
+  }
+  return envUrl || '/api';
+}
+
+const BASE_URL = resolveBaseUrl();
 
 async function request(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
@@ -17,15 +32,26 @@ async function request(endpoint, options = {}) {
 
   try {
     const response = await fetch(url, config);
-    const data = await response.json().catch(() => ({
-      success: false,
-      message: `HTTP Error ${response.status}: Failed to parse JSON response.`
-    }));
+    let data = null;
+    const contentType = response.headers.get('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+      data = await response.json().catch(() => null);
+    }
+
+    if (!data) {
+      data = {
+        success: false,
+        message: response.status === 404
+          ? `Backend API endpoint '${endpoint}' was not found (404). Please ensure the backend server is running on http://localhost:5000.`
+          : `Server returned non-JSON response (Status ${response.status}).`
+      };
+    }
 
     if (!response.ok) {
       const error = new Error(data.message || `Request failed with status ${response.status}`);
       error.status = response.status;
-      error.code = data.code;
+      error.code = data.code || 'HTTP_ERROR';
       error.data = data;
       throw error;
     }
@@ -33,7 +59,7 @@ async function request(endpoint, options = {}) {
     return data;
   } catch (err) {
     if (err.name === 'TypeError' && err.message.includes('fetch')) {
-      const netError = new Error('Cannot connect to backend server. Please verify backend is running on port 5000.');
+      const netError = new Error('Cannot connect to backend server. Please verify backend is running on http://localhost:5000.');
       netError.code = 'NETWORK_ERROR';
       throw netError;
     }

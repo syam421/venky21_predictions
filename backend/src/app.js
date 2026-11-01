@@ -6,6 +6,9 @@ const env = require('./config/env');
 const errorHandler = require('./middleware/errorHandler');
 const { generalRateLimiter } = require('./middleware/rateLimiter');
 
+const path = require('path');
+const fs = require('fs');
+
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -20,7 +23,15 @@ app.use(helmet({
 }));
 
 // CORS Configuration with strict origin and credentials
-const allowedOrigins = [env.CORS_ORIGIN, 'http://localhost:5173', 'http://127.0.0.1:5173'];
+const allowedOrigins = [
+  env.CORS_ORIGIN,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+];
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, curl, server-to-server) or in dev
@@ -40,6 +51,16 @@ app.use(express.json({ limit: '15kb' }));
 app.use(express.urlencoded({ extended: true, limit: '15kb' }));
 app.use(cookieParser(env.COOKIE_SECRET));
 
+// Static files (serve built frontend)
+const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+const rootDistPath = path.resolve(__dirname, '../../');
+
+if (fs.existsSync(path.join(frontendDistPath, 'index.html'))) {
+  app.use(express.static(frontendDistPath));
+} else if (fs.existsSync(path.join(rootDistPath, 'index.html'))) {
+  app.use(express.static(rootDistPath));
+}
+
 // General rate limiter on all API endpoints
 app.use('/api', generalRateLimiter);
 
@@ -58,13 +79,27 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/predictions', predictionRoutes);
 
-// 404 Handler
-app.use('/api/*', (req, res) => {
+// Explicit 404 Handler for all API routes (always returns JSON, never HTML)
+app.all(['/api', '/api/*'], (req, res) => {
   res.status(404).json({
     success: false,
     code: 'ROUTE_NOT_FOUND',
-    message: 'The requested API endpoint does not exist.'
+    message: `API endpoint '${req.originalUrl}' does not exist.`
   });
+});
+
+// SPA Fallback: for any non-API route, send index.html
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  const indexPath = fs.existsSync(path.join(frontendDistPath, 'index.html'))
+    ? path.join(frontendDistPath, 'index.html')
+    : (fs.existsSync(path.join(rootDistPath, 'index.html')) ? path.join(rootDistPath, 'index.html') : null);
+
+  if (indexPath) {
+    res.sendFile(indexPath);
+  } else {
+    next();
+  }
 });
 
 // Centralized error handler

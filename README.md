@@ -55,8 +55,6 @@ VENKY/
 │   ├── .env.example
 │   └── package.json
 │
-├── VENKY_VIP.html                   # Original file preserved
-├── VENKY_VIP.original.backup.html   # Pristine backup copy created
 ├── .gitignore                       # Prevents committing secrets or databases
 └── README.md                        # Documentation & setup guide
 ```
@@ -65,7 +63,7 @@ VENKY/
 
 ## 🎯 2. Strict Preservation of Original Prediction Logic
 
-The prediction rules from the original `VENKY_VIP.html` source code are preserved with **100% mathematical fidelity** inside [`backend/src/services/predictionEngine.js`](file:///c:/Users/GONUGUNTLA%20SPANDANA/OneDrive/Attachments/Desktop/VENKY/backend/src/services/predictionEngine.js):
+The VENKY21 prediction algorithm and logic patterns are implemented with **100% mathematical fidelity** inside [`backend/src/services/predictionEngine.js`](file:///c:/Users/GONUGUNTLA%20SPANDANA/OneDrive/Attachments/Desktop/VENKY/backend/src/services/predictionEngine.js):
 
 | Rule | Original Formula / Implementation | Preserved Function |
 | :--- | :--- | :--- |
@@ -230,5 +228,4 @@ npm test
 
 * **Database (SQLite)**: Create daily snapshots of `backend/dev.db` using SQLite backup API or automated cron copying `dev.db` to encrypted offsite storage.
 * **Database (PostgreSQL)**: Use standard `pg_dump -Fc dbname > backup.dump`.
-* **Original Code Backup**: The original file is safely preserved at [`VENKY_VIP.original.backup.html`](file:///c:/Users/GONUGUNTLA%20SPANDANA/OneDrive/Attachments/Desktop/VENKY/VENKY_VIP.original.backup.html).
 "# venky21_predictions" 

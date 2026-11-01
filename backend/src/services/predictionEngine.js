@@ -2,7 +2,7 @@
  * VENKY21 — PREDICTION ENGINE
  * 
  * CRITICAL RULE: STRICT PRESERVATION OF ORIGINAL LOGIC
- * Source of truth: VENKY_VIP.html original source code
+ * Source of truth: Original VENKY21 prediction algorithm
  * 
  * Rules preserved:
  * 1. B_POOL = [5, 6, 7, 8, 9]
