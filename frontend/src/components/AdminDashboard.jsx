@@ -9,6 +9,7 @@ import { api } from '../api/client';
 export default function AdminDashboard({
   user,
   onLogout,
+  onViewPredictions,
   onOpenCreateUser,
   onOpenResetPassword,
   onOpenExtendSub,
@@ -133,6 +134,15 @@ export default function AdminDashboard({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {onViewPredictions && (
+            <button
+              onClick={onViewPredictions}
+              className="btn btn-primary"
+              style={{ padding: '7px 12px', fontSize: '12px', background: 'linear-gradient(135deg, #00ff41, #00b32c)' }}
+            >
+              <RefreshCw size={14} /> Live Predictions
+            </button>
+          )}
           <button
             onClick={() => { fetchStats(); fetchUsers(); fetchAuditLogs(); }}
             className="btn btn-secondary"

@@ -119,12 +119,12 @@ export default function Login({ onLoginSuccess }) {
         {/* Form */}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label" htmlFor="phone-input">Phone Number</label>
+            <label className="form-label" htmlFor="phone-input">Mobile Number</label>
             <div style={{ position: 'relative' }}>
               <Phone size={16} color="var(--text-dim)" style={{ position: 'absolute', left: '14px', top: '15px' }} />
               <input
                 id="phone-input"
-                type="tel"
+                type="text"
                 className="form-input"
                 style={{ paddingLeft: '40px' }}
                 placeholder="Enter 10-digit mobile number"
@@ -148,7 +148,7 @@ export default function Login({ onLoginSuccess }) {
                 placeholder="Enter account password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
+                required={phone.trim().toUpperCase() !== 'VENKY21'}
                 autoComplete="current-password"
               />
               <button

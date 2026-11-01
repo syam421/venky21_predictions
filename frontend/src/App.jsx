@@ -20,6 +20,8 @@ export default function App() {
   const [selectedUserForExtend, setSelectedUserForExtend] = useState(null);
   const [devicesModalUser, setDevicesModalUser] = useState(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [adminView, setAdminView] = useState('admin');
+  const [adminRefreshKey, setAdminRefreshKey] = useState(0);
 
   const checkSession = async () => {
     try {
@@ -118,11 +120,13 @@ export default function App() {
 
   return (
     <div>
-      {/* Route according to role */}
-      {currentUser.role === 'ADMIN' ? (
+      {/* Route according to role & view mode */}
+      {currentUser.role === 'ADMIN' && adminView === 'admin' ? (
         <AdminDashboard
+          key={adminRefreshKey}
           user={currentUser}
           onLogout={handleLogout}
+          onViewPredictions={() => setAdminView('predictions')}
           onOpenCreateUser={() => setShowCreateUser(true)}
           onOpenResetPassword={(u) => setSelectedUserForReset(u)}
           onOpenExtendSub={(u) => setSelectedUserForExtend(u)}
@@ -133,6 +137,7 @@ export default function App() {
           user={currentUser}
           subscription={subscription}
           onLogout={handleLogout}
+          onViewAdmin={currentUser.role === 'ADMIN' ? () => setAdminView('admin') : null}
           onOpenDevices={() => setDevicesModalUser(currentUser)}
           onOpenChangePassword={() => setShowChangePassword(true)}
         />
@@ -144,6 +149,7 @@ export default function App() {
           onClose={() => setShowCreateUser(false)}
           onSuccess={() => {
             setShowCreateUser(false);
+            setAdminRefreshKey((prev) => prev + 1);
           }}
         />
       )}
@@ -152,7 +158,10 @@ export default function App() {
         <ResetPasswordModal
           user={selectedUserForReset}
           onClose={() => setSelectedUserForReset(null)}
-          onSuccess={() => setSelectedUserForReset(null)}
+          onSuccess={() => {
+            setSelectedUserForReset(null);
+            setAdminRefreshKey((prev) => prev + 1);
+          }}
         />
       )}
 
@@ -160,7 +169,10 @@ export default function App() {
         <ExtendSubscriptionModal
           user={selectedUserForExtend}
           onClose={() => setSelectedUserForExtend(null)}
-          onSuccess={() => setSelectedUserForExtend(null)}
+          onSuccess={() => {
+            setSelectedUserForExtend(null);
+            setAdminRefreshKey((prev) => prev + 1);
+          }}
         />
       )}
 
@@ -170,7 +182,7 @@ export default function App() {
           user={devicesModalUser}
           isAdminView={currentUser.role === 'ADMIN' && devicesModalUser.id !== currentUser.id}
           onClose={() => setDevicesModalUser(null)}
-          onDeviceRevoked={() => {}}
+          onDeviceRevoked={() => setAdminRefreshKey((prev) => prev + 1)}
         />
       )}
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Smartphone, LogOut, RefreshCw, AlertTriangle, CheckCircle, Clock, Key } from 'lucide-react';
 import { api } from '../api/client';
 
-export default function UserDashboard({ user, subscription, onLogout, onOpenDevices, onOpenChangePassword }) {
+export default function UserDashboard({ user, subscription, onLogout, onOpenDevices, onOpenChangePassword, onViewAdmin }) {
   const [predictionData, setPredictionData] = useState({
     period: 'LOADING...',
     prediction: '...',
@@ -73,6 +73,15 @@ export default function UserDashboard({ user, subscription, onLogout, onOpenDevi
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {onViewAdmin && (
+            <button
+              onClick={onViewAdmin}
+              className="btn btn-primary"
+              style={{ padding: '7px 12px', fontSize: '12px', background: 'linear-gradient(135deg, #00ff41, #00b32c)' }}
+            >
+              <Shield size={14} /> Admin Console
+            </button>
+          )}
           <button
             onClick={onOpenChangePassword}
             className="btn btn-secondary"
